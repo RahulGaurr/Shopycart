@@ -25,7 +25,7 @@
 
 This is the landing page of the website:
 
-![snap1](https://github.com/RahulGaurr/fastrack.com/blob/main/Screenshot%20(1924).png?raw=true)
+![snap1](https://github.com/RahulGaurr/Shopycart/blob/master/server/Screenshot%20(3782).png?raw=true)
 
 
 
