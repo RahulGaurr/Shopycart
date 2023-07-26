@@ -28,6 +28,3 @@ This is the landing page of the website:
 ![snap1](https://github.com/RahulGaurr/Shopycart/blob/master/server/Screenshot%20(3782).png?raw=true)
 
 
-
-## This is all about our short description of our project
-
