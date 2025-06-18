@@ -1,6 +1,5 @@
-import {Box, Typography, styled} from "@mui/material";
-import { useState, useEffect } from "react";
-
+import { Box, Typography, styled } from "@mui/material";
+import { useState, useEffect, useCallback } from "react";
 
 const Header = styled(Box)`
     padding: 15px 24px;
@@ -31,57 +30,68 @@ const Price = styled(Box)`
 const Discount = styled(Typography)`
     color: green;
     font-weight: 500;
-`
+`;
 
-
-const TotalBalance = ({cartItems}) => {
-
+const TotalBalance = ({ cartItems }) => {
     const [price, setPrice] = useState(0);
     const [discount, setDiscount] = useState(0);
 
+    const calculateTotalAmount = useCallback(() => {
+        if (!cartItems || cartItems.length === 0) {
+            setPrice(0);
+            setDiscount(0);
+            return;
+        }
+
+        let totalCost = 0;
+        let totalDiscount = 0;
+
+        cartItems.forEach(item => {
+            const qty = item.quantity || 1;
+            const cost = item.price?.cost || 0;
+            const mrp = item.price?.mrp || 0;
+            totalCost += cost * qty;
+            totalDiscount += (mrp - cost) * qty;
+        });
+
+        setPrice(totalCost);
+        setDiscount(totalDiscount);
+    }, [cartItems]);
+
     useEffect(() => {
-        totalAmount()
-    },[cartItems])
+        calculateTotalAmount();
+    }, [calculateTotalAmount]);
 
-    const totalAmount = () => {
-        let price = 0, discount = 0;
-        cartItems.map(item => {
-           return price +=item.price.mrp;
-            discount += (item.price.mrp - item.price.cost)
-        })
-    
-        setPrice(price)
-        setDiscount(discount)
-    }
+    const deliveryCharge = 40;
+    const totalAmount = price - discount + deliveryCharge;
+    const savings = discount;
 
-
-    return  (
-       <Box>
+    return (
+        <Box>
             <Header>
                 <Heading>PRICE DETAILS</Heading>
             </Header>
             <Container>
-                <Typography>Price ({cartItems?.length} item)
-                <Price component='span'>₹{price}</Price>
+                <Typography>
+                    Price ({cartItems?.length || 0} item{cartItems?.length !== 1 ? 's' : ''})
+                    <Price component="span">₹{price.toFixed(2)}</Price>
                 </Typography>
-
-                <Typography>Discount ({cartItems?.length} item)
-                <Price component='span'>-₹{discount}</Price>
+                <Typography>
+                    Discount ({cartItems?.length || 0} item{cartItems?.length !== 1 ? 's' : ''})
+                    <Price component="span">-₹{discount.toFixed(2)}</Price>
                 </Typography>
-
-                <Typography>Delivery Charges ({cartItems?.length} item)
-                <Price component='span'>₹40</Price>
+                <Typography>
+                    Delivery Charges ({cartItems?.length || 0} item{cartItems?.length !== 1 ? 's' : ''})
+                    <Price component="span">₹{deliveryCharge}</Price>
                 </Typography>
-
-                <Typography variant='h6'>Total Amount ({cartItems?.length} item)
-                <Price component='span'>₹{price-discount + 40}</Price>
+                <Typography variant="h6">
+                    Total Amount ({cartItems?.length || 0} item{cartItems?.length !== 1 ? 's' : ''})
+                    <Price component="span">₹{totalAmount.toFixed(2)}</Price>
                 </Typography>
-
-                <Discount>You will save ₹{discount - 40} on this order</Discount>
+                <Discount>You will save ₹{savings.toFixed(2)} on this order</Discount>
             </Container>
-       </Box>
-
-    )
-}
+        </Box>
+    );
+};
 
 export default TotalBalance;

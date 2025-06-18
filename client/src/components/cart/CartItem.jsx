@@ -1,19 +1,19 @@
-import {Box, Typography, styled, Button} from '@mui/material'
-import { addEllipsis } from '../../utils/common-utils';
-import GroupedButton from './ButtonGroup';
-import {removeFromCart} from '../../redux/actions/cartActions'
-import {useDispatch} from 'react-redux'
-const Component = styled(Box)`
-    border-top: 1px solid #f0f0f0;
-    display: flex;
-    background: #fff;
-`;
+import { Box, Typography, Button, styled, IconButton } from '@mui/material';
+import { Delete as DeleteIcon, Add as AddIcon, Remove as RemoveIcon } from '@mui/icons-material';
+import { useDispatch } from 'react-redux';
+import { removeFromCart, incrementQuantity, decrementQuantity } from '../../redux/actions/cartActions';
 
-const LeftComponent = styled(Box)`
-    margin: 20px;
-    display: flex;
-    flex-direction: column;
-`;
+const Component = styled(Box)(({ theme }) => ({
+    borderTop: '1px solid #f0f0f0',
+    display: 'flex',
+    padding: '10px 0',
+}));
+
+const LeftComponent = styled(Box)({
+    margin: '0 10px',
+    display: 'flex',
+    flexDirection: 'column',
+});
 
 const SmallText = styled(Typography)`
     color: #878787;
@@ -28,41 +28,57 @@ const Remove = styled(Button)`
     font-weight: 600;
 `;
 
+const QuantityBox = styled(Box)`
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+`;
 
-const CartItem = ({item}) => {
+const CartItem = ({ item }) => {
+    const dispatch = useDispatch();
 
- const fassured = 'https://static-assets-web.flixcart.com/www/linchpin/fk-cp-zion/img/fa_62673a.png';
+    const handleRemoveFromCart = () => {
+        dispatch(removeFromCart(item.id));
+    };
 
-    const dispatch = useDispatch()
+    const handleIncrement = () => {
+        dispatch(incrementQuantity(item.id));
+    };
 
-    const removeItemFromCart = (id) => {
-        dispatch(removeFromCart(id))
-    }
-
+    const handleDecrement = () => {
+        dispatch(decrementQuantity(item.id));
+    };
 
     return (
-       <Component>
+        <Component>
             <LeftComponent>
-                <img src={item.url} alt="product" style={{height: 110, width: 110}} /> 
-                <GroupedButton />
+                <img src={item.url} alt={item.title.shortTitle} style={{ height: 110, width: 110 }} />
+                <QuantityBox>
+                    <IconButton size="small" onClick={handleDecrement} disabled={item.quantity <= 1}>
+                        <RemoveIcon />
+                    </IconButton>
+                    <Typography style={{ margin: '0 10px' }}>{item.quantity}</Typography>
+                    <IconButton size="small" onClick={handleIncrement}>
+                        <AddIcon />
+                    </IconButton>
+                </QuantityBox>
+                <Remove onClick={handleRemoveFromCart}>
+                    <DeleteIcon /> Remove
+                </Remove>
             </LeftComponent>
-
-             <Box style={{margin:20}}>
-                    <Typography>{addEllipsis(item.title.longTitle) }</Typography>
-                    <SmallText>Seller:RetailNet
-                        <Box component="span"> <img src={fassured} alt="flipkart"style={{width: 50, marginLeft: 10}} /></Box>
-                    </SmallText>
-
-                    <Typography style={{margin: '20px 0'}}>
-                        <Box component='span' style={{fontWeight:600, fontSize: 18}}>₹{item.price.cost}</Box>&nbsp;&nbsp;&nbsp;
-                        <Box component='span' style={{color: '#878787'}}>₹<strike>{item.price.mrp}</strike></Box>&nbsp;&nbsp;&nbsp;
-                        <Box component='span' style={{color: '#388E3C'}}>{item.price.discount}</Box>
-                    </Typography>
-                    <Remove onClick={() => removeItemFromCart(item.id)}>Remove</Remove>
-             </Box>
-       
-       </Component>
-    )
-}
+            <Box style={{ margin: '20px 0' }}>
+                <Typography>{item.title.shortTitle}</Typography>
+                <SmallText>Seller: RetailNet</SmallText>
+                <Typography style={{ marginTop: 10 }}>
+                    ₹{item.price.cost}
+                    <Box component="span" style={{ color: 'green', fontSize: 14 }}>
+                        {`  ${item.price.discount} off`}
+                    </Box>
+                </Typography>
+                <SmallText>Delivery by Wed Jun 25 | ₹40</SmallText>
+            </Box>
+        </Component>
+    );
+};
 
 export default CartItem;

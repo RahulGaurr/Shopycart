@@ -1,79 +1,101 @@
-import {useState} from 'react';
-import { Box, Button, styled } from "@mui/material"
-import {ShoppingCart as CartIcon, FlashOn as Flash} from '@mui/icons-material';
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import {addToCart} from '../../redux/actions/cartActions'
+import { useState, useEffect } from 'react';
+import { Box, Button, styled } from '@mui/material';
+import { ShoppingCart as Cart, FlashOn as Flash } from '@mui/icons-material';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToCart } from '../../redux/actions/cartActions';
+import { useNavigate } from 'react-router-dom';
 
-import { payUsingPaytm } from '../../service/api';
-import { post } from '../../utils/paytm';
-
-
-const LeftContainer = styled(Box) (({theme})=>({
+const LeftContainer = styled(Box)(({ theme }) => ({
     minWidth: '40%',
     padding: '40px 0 0 80px',
-    [theme.breakpoints.down('lg')] : {
-        padding: '20px 40px'
-    }
-}))
-   
+    [theme.breakpoints.down('lg')]: {
+        padding: '20px 40px',
+    },
+}));
 
-const Image = styled('img') ({
-    width: '90%',
-    padding: '15px'
+const Image = styled('img')({
+    padding: '15px',
+    width: '95%',
 });
 
-const StyledButton = styled(Button) (({theme}) => ({
+const StyledButton = styled(Button)(({ theme }) => ({
     width: '48%',
-    height: '50px',
-    borderRadius: '2px',
-    [theme.breakpoints.down('lg')] : {
-        width:'46%'
+    height: 50,
+    borderRadius: 2,
+    [theme.breakpoints.down('lg')]: {
+        width: '46%',
     },
-    [theme.breakpoints.down('sm')] : {
-        width: '48%'
-    }
+    [theme.breakpoints.down('sm')]: {
+        width: '48%',
+    },
+}));
 
-}))
-   
-
-const ActionItem = ({product}) => {
-
-    const navigate = useNavigate();
+const ActionItem = ({ product }) => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const { error } = useSelector(state => state.cart || { error: null });
+    const [errorMessage, setErrorMessage] = useState('');
 
-    const [quantity, setQuantity] = useState(1);
+    const handleAddToCart = () => {
+        if (!product || !product.id || !product.price) {
+            setErrorMessage('Product data is invalid.');
+            return;
+        }
+        dispatch(addToCart(product.id, product));
+        setErrorMessage('');
+    };
 
-    const {id} = product;
+    const handleBuyNow = () => {
+        try {
+            if (!product || !product.id) {
+                throw new Error('Product data is invalid.');
+            }
+            navigate('/success', {
+                state: { message: 'Order placed successfully! Your item will be delivered soon.' },
+            });
+        } catch (error) {
+            setErrorMessage(error.message || 'Failed to process the order. Please try again later.');
+            navigate('/failure', {
+                state: { message: error.message || 'Failed to process the order. Please try again later.' },
+            });
+        }
+    };
 
-    const addItemToCart = () => {
-        dispatch(addToCart(id,quantity))
-        navigate('/cart');
-    }
-
-    const buyNow = async () => {
-       let response = await payUsingPaytm({amount:500, email:'rahulgaurr09@gmail.com'})
-       let information = {
-        action: 'https://securegw-stage.paytm.in/order/process',
-        params: response
-       }
-       post(information)
-    }
-
+    useEffect(() => {
+        if (error) {
+            setErrorMessage(error);
+        }
+    }, [error]);
 
     return (
-        <LeftContainer >
-            <Box 
-                style={{ padding:'15px 20px',border: '1px solid #f0f0f0'}}>
-                 <Image  src={product.detailUrl} alt="product img"/>
+        <LeftContainer>
+            <Box style={{ padding: '15px 20px', border: '1px solid #f0f0f0', width: '90%' }}>
+                <Image src={product?.detailUrl} alt="product" />
             </Box>
-            <StyledButton variant="contained" onClick={() => addItemToCart()} style={{marginRight:10, background:'#ff9f00'}}> <CartIcon />Add to Cart</StyledButton>
-            <StyledButton variant="contained" onClick={() => buyNow()} style={{background:'#fb541b'}}> <Flash />Buy Now</StyledButton>
-        </LeftContainer >
-    )
+            <StyledButton
+                variant="contained"
+                style={{ marginRight: 10, background: '#ff9f00' }}
+                startIcon={<Cart />}
+                onClick={handleAddToCart}
+                disabled={!product || !product.id}
+            >
+                Add to Cart
+            </StyledButton>
+            <StyledButton
+                variant="contained"
+                style={{ background: '#fb641b' }}
+                startIcon={<Flash />}
+                onClick={handleBuyNow}
+            >
+                Buy Now
+            </StyledButton>
+            {errorMessage && (
+                <Box style={{ color: 'red', marginTop: 10 }}>
+                    {errorMessage}
+                </Box>
+            )}
+        </LeftContainer>
+    );
+};
 
-
-
-}
-
-export default ActionItem
+export default ActionItem;
