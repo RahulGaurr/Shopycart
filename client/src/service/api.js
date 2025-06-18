@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const URL = 'https://flipkart-backend.onrender.com/api'; // Replace with your Render URL
+const URL = 'https://shopycart.onrender.com'; // Replace with your Render URL
 
 export const authenticateSignup = async (data) => {
     try {
