@@ -1,7 +1,7 @@
 import axios from 'axios';
 import * as actionTypes from '../constants/productConstant';
 
-const URL = 'http://localhost:8000/api';
+const URL = 'https://shopycart.onrender.com/api';
 
 export const getProducts = () => async (dispatch) => {
     try {

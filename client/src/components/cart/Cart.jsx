@@ -6,6 +6,7 @@ import EmptyCart from './EmptyCart';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { cartReset } from '../../redux/actions/cartActions';
+import axios from 'axios';
 
 const Container = styled(Grid)(({ theme }) => ({
     padding: '30px 135px',
@@ -56,21 +57,31 @@ const Cart = () => {
             const cost = item.price?.cost || 0;
             const discount = (item.price?.mrp || 0) - cost;
             return total + (cost * qty) - (discount * qty);
-        }, 0) + 40; // Add delivery charge
+        }, 0) + 40;
     };
 
-    const handlePlaceOrder = () => {
+    const handlePlaceOrder = async () => {
         const totalAmount = calculateTotalAmount();
-        if (totalAmount <= 40) { // Account for delivery charge
+        if (totalAmount <= 40) {
             setErrorMessage('Cart is empty or invalid. Please add items to your cart.');
             return;
         }
 
-        // Simulate a successful order (remove random for now, add backend later if needed)
-        navigate('/success', {
-            state: { message: 'Order placed successfully! Your items will be delivered soon.' },
-        });
-        dispatch(cartReset()); // Reset cart immediately
+        try {
+            await axios.post('https://shopycart.onrender.com/api/order', {
+                cartItems,
+                totalAmount,
+            });
+            navigate('/success', {
+                state: { message: 'Order placed successfully! Your items will be delivered soon.' },
+            });
+            dispatch(cartReset());
+        } catch (error) {
+            setErrorMessage('Failed to process the order. Please try again later.');
+            navigate('/failure', {
+                state: { message: 'Failed to process the order. Please try again later.' },
+            });
+        }
     };
 
     return (
