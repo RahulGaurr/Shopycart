@@ -4,6 +4,7 @@ import Search from './search';
 import CustomButtons from './CustomButtons';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { typography } from '@mui/system';
 
 const StyledHeader = styled(AppBar) `
  background: #2874f0;
@@ -15,6 +16,12 @@ margin-left:12%;
 line-height: 0%;
 text-decoration: none;
 color: inherit;
+`;
+
+const LogoText = styled(Typography)`
+    font-size: 15px;
+    font-style: italic;
+    font-weight:bold;
 `;
 
 const SubHeading= styled(Typography)`
@@ -83,7 +90,7 @@ const list = () => (
         <Drawer open={open} onClose={handleClose}>{list()} </Drawer>
 
             <Component to='/'>
-                <Typography>Shopycart</Typography>
+                <LogoText>Shopycart</LogoText>
                 <Box style={{display: 'flex'}}>
                     <SubHeading>Explore&nbsp;
                         <Box component="span" style={{color:`#FFE500`}}>Plus</Box>
