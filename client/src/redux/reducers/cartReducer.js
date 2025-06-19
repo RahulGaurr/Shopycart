@@ -12,10 +12,9 @@ const loadState = () => {
     }
 };
 
-const saveState = (state) => {
+const saveState = (cartItems) => {
     try {
-        const serializedState = JSON.stringify(state.cartItems);
-        localStorage.setItem('cartItems', serializedState);
+        localStorage.setItem('cartItems', JSON.stringify(cartItems));
     } catch (err) {
         console.error('Error saving cart state:', err);
     }
@@ -24,60 +23,50 @@ const saveState = (state) => {
 const initialState = loadState();
 
 const cartReducer = (state = initialState, action) => {
-    let newState;
     switch (action.type) {
         case actionTypes.ADD_TO_CART:
             const item = action.payload;
             const existItem = state.cartItems.find(x => x.id === item.id);
 
             if (existItem) {
-                newState = {
+                return {
                     ...state,
                     cartItems: state.cartItems.map(x =>
                         x.id === existItem.id ? { ...x, quantity: x.quantity + 1 } : x
                     ),
                     error: null,
                 };
-            } else {
-                newState = {
-                    ...state,
-                    cartItems: [...state.cartItems, { ...item, quantity: 1 }],
-                    error: null,
-                };
             }
-            saveState(newState); // Save state after adding to cart
-            return newState;
+            return {
+                ...state,
+                cartItems: [...state.cartItems, { ...item, quantity: 1 }],
+                error: null,
+            };
         case actionTypes.ADD_TO_CART_ERROR:
             return {
                 ...state,
                 error: action.payload,
             };
         case actionTypes.REMOVE_FROM_CART:
-            newState = {
+            return {
                 ...state,
                 cartItems: state.cartItems.filter(x => x.id !== action.payload),
                 error: null,
             };
-            saveState(newState); // Save state after removing from cart
-            return newState;
         case actionTypes.CART_RESET:
-            newState = {
-                ...initialState, // Reset to initial state
-            };
-            saveState(newState); // Save the reset state
-            return newState;
+            const resetState = { cartItems: [], error: null };
+            saveState(resetState.cartItems);
+            return resetState;
         case actionTypes.INCREMENT_QUANTITY:
-            newState = {
+            return {
                 ...state,
                 cartItems: state.cartItems.map(item =>
                     item.id === action.payload ? { ...item, quantity: item.quantity + 1 } : item
                 ),
                 error: null,
             };
-            saveState(newState); // Save state after incrementing
-            return newState;
         case actionTypes.DECREMENT_QUANTITY:
-            newState = {
+            return {
                 ...state,
                 cartItems: state.cartItems.map(item =>
                     item.id === action.payload && item.quantity > 1
@@ -86,8 +75,6 @@ const cartReducer = (state = initialState, action) => {
                 ),
                 error: null,
             };
-            saveState(newState); // Save state after decrementing
-            return newState;
         default:
             return state;
     }
