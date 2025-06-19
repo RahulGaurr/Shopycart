@@ -166,11 +166,11 @@ const loginInitialValues = {
                 {error && <Error>Please enter valid username or password</Error> }
 
                 <TextField variant="standard" onChange={(e) => onValueChange(e)} name='password' label="Enter Password" />
-                <Text> By continuing, You agree to Flipkart's Terms of use and Privacy Policy </Text>
+                <Text> By continuing, You agree to Shopycart's Terms of use and Privacy Policy </Text>
                 <LoginButon onClick={() => loginUser()}>Login</LoginButon>
                 <Typography style={{ textAlign: "center" }}>OR</Typography>
                 <RequestOTP>Request OTP</RequestOTP>
-                <CreateAccount onClick={() => toggleSignup()}> New to Flipkart? Create an account </CreateAccount>
+                <CreateAccount onClick={() => toggleSignup()}> New to Shopycart? Create an account </CreateAccount>
               </Wrapper>
         :
               <Wrapper>

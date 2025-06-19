@@ -83,7 +83,7 @@ const list = () => (
         <Drawer open={open} onClose={handleClose}>{list()} </Drawer>
 
             <Component to='/'>
-                <img src={logoURL} alt="logo" style={{width: 75}} />
+                <Typography>Shopycart</Typography>
                 <Box style={{display: 'flex'}}>
                     <SubHeading>Explore&nbsp;
                         <Box component="span" style={{color:`#FFE500`}}>Plus</Box>
